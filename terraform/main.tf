@@ -2,24 +2,27 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_vpc" "main" {
+resource "aws_vpc" "main_vpc" {
   cidr_block = "10.0.0.0/16"
 }
 
-resource "aws_subnet" "subnet" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
+# Example Subnet (you likely have more in your version)
+resource "aws_subnet" "public_subnet" {
+  vpc_id                  = aws_vpc.main_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
 }
 
 resource "aws_security_group" "ecs_sg" {
-  name        = "ecs_sg"
-  description = "Allow all traffic"
-  vpc_id      = aws_vpc.main.id
+  name        = "ecs-security-group"
+  description = "Allow HTTP inbound traffic"
+  vpc_id      = aws_vpc.main_vpc.id
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -31,28 +34,30 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-resource "aws_ecs_cluster" "medusa_cluster" {
-  name = "medusa-cluster"
-}
-
-resource "aws_iam_role" "ecs_task_exec_role" {
+resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecsTaskExecutionRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
       }
-    }]
+    ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_exec_policy" {
-  role       = aws_iam_role.ecs_task_exec_role.name
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_attach" {
+  role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_ecs_cluster" "medusa_cluster" {
+  name = "medusa-cluster"
 }
 
 resource "aws_ecs_task_definition" "medusa_task" {
@@ -61,8 +66,11 @@ resource "aws_ecs_task_definition" "medusa_task" {
   network_mode            = "awsvpc"
   cpu                     = "256"
   memory                  = "512"
-  execution_role_arn      = aws_iam_role.ecs_task_exec_role.arn
-  container_definitions   = file("${path.module}/ecs-task-def.json")
+  execution_role_arn      = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode(
+    jsondecode(file("${path.module}/ecs-task-def.json"))
+  )
 }
 
 resource "aws_ecs_service" "medusa_service" {
@@ -73,9 +81,11 @@ resource "aws_ecs_service" "medusa_service" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.subnet.id]
-    security_groups  = [aws_security_group.ecs_sg.id]
+    subnets         = [aws_subnet.public_subnet.id]
+    security_groups = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
+
+  depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_attach]
 }
 
