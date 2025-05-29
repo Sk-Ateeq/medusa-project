@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center">
   <a href="https://www.medusajs.com">
   <picture>
@@ -69,3 +70,7 @@ Join our [Discord server](https://discord.com/invite/medusajs) to meet other com
 ## License
 
 Licensed under the [MIT License](https://github.com/medusajs/medusa/blob/develop/LICENSE).
+=======
+# medusa-project
+Pushing my Terraform code and Medusa Docker setup
+>>>>>>> 843eb4536453cda1c2e83e2335f244a9b8626152
