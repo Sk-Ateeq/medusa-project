@@ -1,0 +1,10 @@
+.git
+node_modules
+coverage
+*.md
+*.mdx
+*.log
+docs
+www
+.vscode
+
