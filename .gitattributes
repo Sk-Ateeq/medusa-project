@@ -1,3 +1,4 @@
 *.mdx linguist-detectable=false
 *.md linguist-detectable=false
 *.yaml linguist-detectable=false
+*.json filter=lfs diff=lfs merge=lfs -text
