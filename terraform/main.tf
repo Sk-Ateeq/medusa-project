@@ -79,8 +79,7 @@ resource "aws_ecs_task_definition" "medusa_task" {
   memory                  = "512"
   execution_role_arn      = aws_iam_role.ecs_task_execution_role.arn
 
-  # No need to decode and re-encode the JSON file
-  container_definitions = file("${path.module}/ecs-task-def.json")
+  container_definitions = jsonencode(jsondecode(file("${path.module}/ecs-task-def.json")))
 }
 
 resource "aws_ecs_service" "medusa_service" {
@@ -98,4 +97,3 @@ resource "aws_ecs_service" "medusa_service" {
 
   depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_attach]
 }
-
