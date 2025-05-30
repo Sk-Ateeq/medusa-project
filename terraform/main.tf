@@ -57,24 +57,7 @@ resource "aws_security_group" "ecs" {
   }
 }
 
-resource "aws_iam_role" "ecs_execution" {
-  name = "ecsTaskExecutionRole"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_exec_policy" {
-  role       = aws_iam_role.ecs_execution.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
+# Removed aws_iam_role and aws_iam_role_policy_attachment
 
 resource "aws_ecs_cluster" "medusa" {
   name = "medusa-cluster"
@@ -86,7 +69,9 @@ resource "aws_ecs_task_definition" "medusa_task" {
   network_mode            = "awsvpc"
   cpu                     = "512"
   memory                  = "1024"
-  execution_role_arn      = aws_iam_role.ecs_execution.arn
+
+  # Use existing role directly
+  execution_role_arn      = "arn:aws:iam::061039772844:role/ecsTaskExecutionRole"
 
   container_definitions = file("${path.module}/ecs-task-def.json")
 }
@@ -104,5 +89,6 @@ resource "aws_ecs_service" "medusa" {
     assign_public_ip = true
   }
 
-  depends_on = [aws_iam_role_policy_attachment.ecs_exec_policy]
+  # Removed depends_on for IAM policy attachment
 }
+
