@@ -88,5 +88,5 @@ resource "aws_ecs_service" "medusa" {
     security_groups = [aws_security_group.ecs.id]
     assign_public_ip = true
   }
-# Removed depends_on for IAM policy attachment
+# Removed depends_on for IAM policy attachment Done
 }
