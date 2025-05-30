@@ -1,7 +1,7 @@
 [
   {
     "name": "medusa",
-    "image": "medusajs/medusa-server:latest",
+    "image": "ghcr.io/medusajs/medusa:latest",
     "essential": true,
     "portMappings": [
       {
