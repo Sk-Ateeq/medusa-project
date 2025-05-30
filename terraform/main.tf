@@ -57,7 +57,6 @@ resource "aws_security_group" "ecs" {
   }
 }
 
-# Attach existing execution role with Secrets Manager access
 resource "aws_ecs_cluster" "medusa" {
   name = "medusa-cluster"
 }
@@ -71,11 +70,6 @@ resource "aws_ecs_task_definition" "medusa_task" {
   execution_role_arn       = "arn:aws:iam::061039772844:role/ecsTaskExecutionRole"
 
   container_definitions = file("${path.module}/ecs-task-def.json")
-
-  # Attach GitHub container registry auth secret
-  repository_credentials {
-    credentials_parameter = "arn:aws:secretsmanager:us-east-1:061039772844:secret:medusa-ghcr-auth"
-  }
 }
 
 resource "aws_ecs_service" "medusa" {
