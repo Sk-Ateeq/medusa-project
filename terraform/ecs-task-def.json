@@ -1,3 +1,20 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:68ca5d07380f0a43ea8b55642597565799b91f7e4f405470384090ab02a75d1c
-size 223
+[
+  {
+    "name": "medusa",
+    "image": "medusajs/medusa",
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 9000,
+        "hostPort": 9000,
+        "protocol": "tcp"
+      }
+    ],
+    "environment": [
+      {
+        "name": "NODE_ENV",
+        "value": "production"
+      }
+    ]
+  }
+]
