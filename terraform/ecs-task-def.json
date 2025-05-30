@@ -1,7 +1,7 @@
 [
   {
     "name": "medusa",
-    "image": "medusajs/medusa:latest",
+    "image": "medusajs/medusa-server:latest",
     "essential": true,
     "portMappings": [
       {
