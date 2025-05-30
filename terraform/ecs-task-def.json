@@ -1,7 +1,7 @@
 [
   {
     "name": "medusa",
-    "image": "ghcr.io/medusajs/medusa:latest",
+    "image": "ateeqahmed1/medusa-app:latest",
     "essential": true,
     "portMappings": [
       {
@@ -18,3 +18,4 @@
     ]
   }
 ]
+

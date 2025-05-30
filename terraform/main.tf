@@ -57,6 +57,8 @@ resource "aws_security_group" "ecs" {
   }
 }
 
+# Removed aws_iam_role and aws_iam_role_policy_attachment
+
 resource "aws_ecs_cluster" "medusa" {
   name = "medusa-cluster"
 }
@@ -64,10 +66,12 @@ resource "aws_ecs_cluster" "medusa" {
 resource "aws_ecs_task_definition" "medusa_task" {
   family                   = "medusa-task"
   requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = "512"
-  memory                   = "1024"
-  execution_role_arn       = "arn:aws:iam::061039772844:role/ecsTaskExecutionRole"
+  network_mode            = "awsvpc"
+  cpu                     = "512"
+  memory                  = "1024"
+
+  # Use existing role directly
+  execution_role_arn      = "arn:aws:iam::061039772844:role/ecsTaskExecutionRole"
 
   container_definitions = file("${path.module}/ecs-task-def.json")
 }
@@ -80,9 +84,9 @@ resource "aws_ecs_service" "medusa" {
   desired_count   = 1
 
   network_configuration {
-    subnets          = [aws_subnet.public.id]
-    security_groups  = [aws_security_group.ecs.id]
+    subnets         = [aws_subnet.public.id]
+    security_groups = [aws_security_group.ecs.id]
     assign_public_ip = true
   }
+# Removed depends_on for IAM policy attachment
 }
-
